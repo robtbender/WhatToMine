@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+
+<h:head>
+	<title>What To Mine</title>
+</h:head>
+
+<h:body>
+	<h1>Welcome to What To Mine!</h1>
+	<h:form id="reg">
+		<h:panelGrid columns="2">
+			<h:outputLabel for="eveSystemName" value="Enter the Eve System where you will mine:" />
+			<h:inputText id="eveSystemName" title="Enter a valid Eve system..." value="#{userSession.inputEveSystemName}" required="true"
+				requiredMessage="Error: A valid system is required." maxlength="15" />
+		</h:panelGrid>
+	</h:form>
+	<h:panelGrid rendered="#{userSession.eveSystemEntered}">
+		<h:outputText value="EveSystemName( #{userSession.eveSystem.eveSystemName} )." />
+		<h:outputText value="EveSystemID( #{userSession.eveSystem.eveSystemId} )." />
+		<h:outputText value="EveRegionID( #{userSession.eveSystem.eveRegion.eveRegionId} )." />
+		<h:dataTable var="_eveOrder" value="#{userSession.eveSystem.eveSystemItemMaxAvailableList}" styleClass="simpletablestyle">
+			<h:column>
+				<f:facet name="header">Item Name</f:facet>
+                #{_eveOrder.eveItem.eveItemName}
+            </h:column>
+			<h:column>
+				<f:facet name="header">ISK Per Unit</f:facet>
+                #{_eveOrder.price}
+            </h:column>
+			<h:column>
+				<f:facet name="header">ISK Per M3</f:facet>
+				<h:outputText value="#{_eveOrder.price/_eveOrder.eveItem.eveItemVolume}">
+					<f:convertNumber pattern="#,###,##0.00" />
+				</h:outputText>
+			</h:column>
+			<h:column>
+				<f:facet name="header">Source Station Name</f:facet>
+                #{_eveOrder.station.eveStationName}
+            </h:column>
+			<h:column>
+				<f:facet name="header">Order Range</f:facet>
+                #{_eveOrder.range}
+            </h:column>
+		</h:dataTable>
+		<h:dataTable var="_eveOrder" value="#{userSession.eveSystem.eveRegion.eveRegionItemMaxOrderList}" styleClass="simpletablestyle">
+			<h:column>
+				<f:facet name="header">Item Name</f:facet>
+                #{_eveOrder.eveItem.eveItemName}
+            </h:column>
+			<h:column>
+				<f:facet name="header">ISK Per Unit</f:facet>
+                #{_eveOrder.price}
+            </h:column>
+			<h:column>
+				<f:facet name="header">ISK Per M3</f:facet>
+				<h:outputText value="#{_eveOrder.price/_eveOrder.eveItem.eveItemVolume}">
+					<f:convertNumber pattern="#,###,##0.00" />
+				</h:outputText>
+            </h:column>
+			<h:column>
+				<f:facet name="header">Source Station Name</f:facet>
+                #{_eveOrder.station.eveStationName}
+            </h:column>
+			<h:column>
+				<f:facet name="header">Order Range</f:facet>
+                #{_eveOrder.range}
+            </h:column>
+		</h:dataTable>
+	</h:panelGrid>
+	<div class="messagecolor">
+		<h:messages showSummary="true" showDetail="false" errorStyle="color: #d20005" infoStyle="color: blue" />
+	</div>
+</h:body>
+
+</html>
