@@ -42,6 +42,8 @@ public class CentralMarket {
 	EveRegion eveRegion;
 	EveOre eveOre;
 
+	public CentralMarket() { }
+
 	public CentralMarket(EveRegion eveRegion, EveOre eveOre) {
 		this.setEveRegion(eveRegion);
 		this.setEveOre(eveOre);
@@ -101,6 +103,67 @@ public class CentralMarket {
 	public EveOrderListTimeStamp getRegionBuyOrderList() {
 		return this.regionBuyOrderList;
 	}
+	
+	public ArrayList<EveOrder> getRegionBuyOrderList(EveRegion eveRegion, EveOre eveOre) {
+		ArrayList<EveOrder> eveRegionBuyOrderList = new ArrayList<>();
+		EveOrder eveOrder;
+		this.setEveRegion(eveRegion);
+		this.setEveOre(eveOre);
+
+		Logger logger = CentralMarket.LOGGER;
+
+		try {
+			String urlString = "http://api.eve-central.com/api/quicklook" + "?" +
+			        "regionlimit=" + this.getEveRegion().getEveRegionId() +
+			        "&" + "typeid=" + this.getEveOre().getEveItemId();
+			/*
+			 * URL url = new URL(
+			 * "http://api.eve-central.com/api/quicklook?regionlimit=10000068&typeid=1230"
+			 * );
+			 */
+			logger.info(String.format("urlString( %s ).", urlString));
+			URL url = new URL(urlString);
+			InputStream inputStream = url.openStream();
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			dbf.setIgnoringElementContentWhitespace(true);
+			DocumentBuilder db = dbf.newDocumentBuilder();
+			Document doc = db.parse(inputStream);
+			doc.getDocumentElement().normalize();
+			XPathFactory xpathFactory = XPathFactory.newInstance();
+			XPathExpression xpathExp = xpathFactory.newXPath().compile("//buy_orders");
+			NodeList buyOrderListRoot = (NodeList) xpathExp.evaluate(doc, XPathConstants.NODESET);
+			this.eveCentralBuyOrders = buyOrderListRoot.item(0).getChildNodes();
+		} catch (Exception e) { }
+
+		NodeList eveCentralBuyOrders = this.getEveCentralBuyOrders();
+		try {
+			int nodeDetailNum;
+			for (int nodeNum = 0; nodeNum < eveCentralBuyOrders.getLength(); nodeNum++) {
+				NodeList buyOrderDetailList = eveCentralBuyOrders.item(nodeNum).getChildNodes();
+				eveOrder = new EveOrder(this.getEveOre(), this.getEveRegion());
+				for (nodeDetailNum = 0; nodeDetailNum < buyOrderDetailList.getLength(); nodeDetailNum++) {
+					Node orderDetail = buyOrderDetailList.item(nodeDetailNum);
+					if (orderDetail.getNodeName().equals("price")) {
+						eveOrder.setPrice(Double.parseDouble(orderDetail.getChildNodes().item(0).getNodeValue()));
+					} else if (orderDetail.getNodeName().equals("station")) {
+						long eveStationId = Long.parseLong(orderDetail.getChildNodes().item(0).getNodeValue());
+						 eveOrder.setStation(eveDataLayer.getEveStation(eveStationId));
+					} else if (orderDetail.getNodeName().equals("range")) {
+						eveOrder.setRange(Long.parseLong(orderDetail.getChildNodes().item(0).getNodeValue()));	
+					}
+				}
+				eveRegionBuyOrderList.add(eveOrder);
+			}
+		} catch (Exception e) { }
+		if (eveRegionBuyOrderList.size() == 0) {
+			eveOrder = new EveOrder(this.getEveOre(), this.getEveRegion());
+			eveOrder.setEmptyOrder();
+			eveRegionBuyOrderList.add(eveOrder);
+		}
+
+		return eveRegionBuyOrderList;
+	}
+
 
 	private void setRegionBuyOrderList() {
 		EveOrder eveOrder;

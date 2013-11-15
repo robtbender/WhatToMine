@@ -2,6 +2,7 @@ package com.eve.whatToMine.arq;
 
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 import javax.ejb.EJB;
@@ -49,7 +50,7 @@ public class CentralMarketTest {
 	private EveDataLayer eveDataLayer;
 	
 	@Test
-	public void testCentralMarketConstructor() {
+	public void testCentralMarket() {
 		EveRegion eveRegion = eveDataLayer.getEveRegion(10000068);
 		EveOre eveOre = eveDataLayer.getEveOre("Veldspar");
 		CentralMarket centralMarket = new CentralMarket(eveRegion, eveOre);
@@ -62,20 +63,19 @@ public class CentralMarketTest {
 			assertTrue((eveOrder1.getPrice()/eveOrder1.getEveItem().getEveItemVolume()) >= (eveOrder2.getPrice()/eveOrder2.getEveItem().getEveItemVolume()));
 		}
 	}
-	
+
 	@Test
-	public void testCentralMarketConstructorRunFromCache() {
+	public void testCentralMarketEmptyConstructor() {
 		EveRegion eveRegion = eveDataLayer.getEveRegion(10000068);
-		EveOre eveOre = eveDataLayer.getEveOre("Dense Veldspar");
-		CentralMarket centralMarket = new CentralMarket(eveRegion, eveOre);
-		assertNotNull(centralMarket.getRegionBuyOrderList());
-		assertTrue(centralMarket.getRegionBuyOrderList().getCentralMarketTimeStamp().getTime() <= (new Date().getTime()));
-		assertTrue(centralMarket.getRegionBuyOrderList().getOrderList().size() > 1);
-		if( centralMarket.getRegionBuyOrderList().getOrderList().size() > 0){
-			EveOrder eveOrder1 = centralMarket.getRegionBuyOrderList().getOrderList().get(0);
-			EveOrder eveOrder2 = centralMarket.getRegionBuyOrderList().getOrderList().get(1);
+		EveOre eveOre = eveDataLayer.getEveOre("Veldspar");
+		ArrayList<EveOrder> eveOrderList = new ArrayList<EveOrder>();
+		eveOrderList = new CentralMarket().getRegionBuyOrderList(eveRegion, eveOre);
+		assertNotNull(eveOrderList);
+		assertTrue(eveOrderList.size() > 1);
+		if( eveOrderList.size() >= 2){
+			EveOrder eveOrder1 = eveOrderList.get(0);
+			EveOrder eveOrder2 = eveOrderList.get(1);
 			assertTrue((eveOrder1.getPrice()/eveOrder1.getEveItem().getEveItemVolume()) >= (eveOrder2.getPrice()/eveOrder2.getEveItem().getEveItemVolume()));
 		}
 	}
-
 }
