@@ -31,8 +31,6 @@ public class EveOrderListTimeStamp {
 	}
 
 	public EveOrder getMaxOrder() {
-		// TODO What do we do if order list is empty? What order do we return? We need an EveItem to create an order. This should always have a value as
-		// we are setting the order list in CentralMarket, and if there are no valid orders, we add an empty order there.
 		return this.getOrderList().get(0);
 	}
 
@@ -44,7 +42,7 @@ public class EveOrderListTimeStamp {
 		this.centralMarketTimeStamp = date;
 	}
 
-	public void sortOrderList(ArrayList<EveOrder> eveOrderList) {
-		Collections.sort(eveOrderList, ORE_COMPARATOR);
+	public void sortOrderList() {
+		Collections.sort(this.getOrderList(), ORE_COMPARATOR);
     }
 }

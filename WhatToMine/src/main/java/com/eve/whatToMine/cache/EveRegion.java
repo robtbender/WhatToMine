@@ -10,8 +10,6 @@ import java.util.Set;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import org.apache.log4j.Logger;
-
 import com.eve.centralMarketInterface.CentralMarket;
 import com.eve.whatToMine.data.EveOrder;
 import com.eve.whatToMine.data.EveOrderListTimeStamp;
@@ -27,8 +25,6 @@ public class EveRegion {
 			e.printStackTrace();
 		}
 	}
-
-	private final static Logger LOGGER = Logger.getLogger(EveRegion.class);
 
 	public static final String EveRegionNameEMPTYVALUE = "Eve Region Not Yet Initialized";
 	public static final long EveRegionIdEMPTYVALUE = -1;
@@ -71,6 +67,9 @@ public class EveRegion {
 	}
 
 	public ArrayList<EveOrder> getEveRegionItemMaxOrderList() {
+		if ((this.eveRegionItemMaxOrderList == null) || (this.eveRegionItemMaxOrderList.size() == 0)) {
+			this.setEveRegionItemMaxOrderList();
+		}
 		return this.eveRegionItemMaxOrderList;
 	}
 	
@@ -84,42 +83,40 @@ public class EveRegion {
 			eveMaxItemOrder = this.getEveItemOrders(eveOre).get(0);
 			this.eveRegionItemMaxOrderList.add(eveMaxItemOrder);
 		}
+		if (this.eveRegionItemMaxOrderList.size() == 0) {
+			eveOre = eveDataLayer.getEveOre("Veldspar");
+			EveOrder eveOrder = new EveOrder(eveOre, this);
+			eveOrder.setEmptyOrder();
+			this.eveRegionItemMaxOrderList.add(eveOrder);
+		}
 		Collections.sort(this.eveRegionItemMaxOrderList, EveOrderListTimeStamp.ORE_COMPARATOR);
 	}
 
 	private ArrayList<EveOrder> getEveItemOrders(EveOre eveOre) {
-		Logger logger = EveRegion.LOGGER;
+		EveOrderListTimeStamp eveOrderListTimeStamp = this.getEveItemOrderHashMap().get(eveOre);
 
-		EveOrderListTimeStamp eveOrderListTimeStamp = null;
-		if (!this.getEveItemOrderHashMap().containsKey(eveOre)) {
+		if((eveOrderListTimeStamp == null)){
 			this.setEveItemOrders(eveOre);
 			eveOrderListTimeStamp = this.getEveItemOrderHashMap().get(eveOre);
 		}else{
-			eveOrderListTimeStamp = this.getEveItemOrderHashMap().get(eveOre);
 			long timeDiff = ((new Date().getTime()) - eveOrderListTimeStamp.getCentralMarketTimeStamp().getTime()) / 3600000;
 			if (timeDiff > EveOrderListTimeStamp.MinRefreshHOURS) {
-				logger.info(String.format("TimeDiff( %d ), Refresh at( %d ) hrs, cache out of date getting orders from Eve Central", timeDiff, EveOrderListTimeStamp.MinRefreshHOURS));
 				this.setEveItemOrders(eveOre);
-				eveOrderListTimeStamp = this.getEveItemOrderHashMap().get(eveOre);
-			}else{
-				logger.info(String.format("TimeDiff( %d ), Refresh at( %d ) hrs, orders for Region( %s ), Ore( %s ) good to go", timeDiff, EveOrderListTimeStamp.MinRefreshHOURS, this.getEveRegionName(), eveOre.getEveItemName()));
 			}
 		}
 		return eveOrderListTimeStamp.getOrderList();
 	}
 
 	private void setEveItemOrders(EveOre eveOre) {
-		CentralMarket centralMarket = new CentralMarket(this, eveOre);
-		EveOrderListTimeStamp eveOrderListTimeStamp = centralMarket.getRegionBuyOrderList();
+		EveOrderListTimeStamp eveOrderListTimeStamp = new EveOrderListTimeStamp();
+		eveOrderListTimeStamp.setCentralMarketTimeStamp(new Date());
+		eveOrderListTimeStamp.setOrderList(new CentralMarket().getRegionBuyOrderList(this, eveOre));
+		eveOrderListTimeStamp.sortOrderList();
 		this.getEveItemOrderHashMap().put(eveOre, eveOrderListTimeStamp);
 	}
 
 	public HashMap<EveOre, EveOrderListTimeStamp> getEveItemOrderHashMap() {
 	    return this.eveItemOrderHashMap;
-    }
-
-	public void setEveItemOrderHashMap(HashMap<EveOre, EveOrderListTimeStamp> eveItemOrderHashMap) {
-	    this.eveItemOrderHashMap = eveItemOrderHashMap;
     }
 
 	public Set<EveOre> getEveRegionItemList() {
@@ -132,8 +129,6 @@ public class EveRegion {
 		EveOrder eveOrder = new EveOrder(eveOre, this);
 		eveOrder.setEmptyOrder();
 		
-//		EveOrderListTimeStamp eveOrderListTimeStamp = this.getEveItemOrderHashMap().get(eveItem);
-//		for( EveOrder eveOrderLoop : eveOrderListTimeStamp.getOrderList()){
 		for( EveOrder eveOrderLoop : this.getEveItemOrders(eveOre)){
 			if(this.orderIsInRange(eveOrderLoop, eveSystem)){
 				eveRegionItemOrderAvailableList.add(eveOrderLoop);
@@ -190,7 +185,6 @@ public class EveRegion {
 			unVisitedSet.remove(0);
 			visitedSetContainsToEveSystem = false;
 			for (DijkstraEveSystem des : visitedSet) {
-//				if (des.getEveSystem().getEveSystemId() == toEveSystem.getEveSystemId()){
 				if (des.getEveSystem().equals(toEveSystem)){
 					visitedSetContainsToEveSystem = true;
 					if( des.getDistance() <= eveOrder.getRange()){
@@ -244,6 +238,4 @@ public class EveRegion {
 			}
 		}
 	};
-	
-
 }
