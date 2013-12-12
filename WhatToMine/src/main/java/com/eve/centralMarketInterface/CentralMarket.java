@@ -128,6 +128,7 @@ public class CentralMarket {
 				this.regionBuyOrderList.add(eveOrder);
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		if ((this.regionBuyOrderList == null) || (this.regionBuyOrderList.size() == 0)) {
 			eveOrder = new EveOrder(this.getEveOre(), this.getEveRegion());

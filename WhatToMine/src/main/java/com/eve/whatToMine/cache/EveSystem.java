@@ -7,7 +7,7 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 import com.eve.whatToMine.data.EveOrder;
-import com.eve.whatToMine.data.EveOrderListTimeStamp;
+import com.eve.whatToMine.data.DatedEveOrderList;
 import com.eve.whatToMine.db.EveSystemDb;
 
 public class EveSystem {
@@ -107,7 +107,7 @@ public class EveSystem {
 			this.eveSystemItemMaxAvailableList.add(eveMaxAvailableItemOrder);
 		}
 
-		Collections.sort(this.eveSystemItemMaxAvailableList, EveOrderListTimeStamp.ORE_COMPARATOR);
+		Collections.sort(this.eveSystemItemMaxAvailableList, DatedEveOrderList.ORE_COMPARATOR);
     }
 
 }

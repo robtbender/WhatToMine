@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 
-public class EveOrderListTimeStamp {
+public class DatedEveOrderList {
 
 	public static final int MinRefreshHOURS = 4;
 

@@ -21,7 +21,7 @@ import com.eve.whatToMine.cache.EveRegion;
 import com.eve.whatToMine.cache.EveStation;
 import com.eve.whatToMine.cache.EveSystem;
 import com.eve.whatToMine.data.EveOrder;
-import com.eve.whatToMine.data.EveOrderListTimeStamp;
+import com.eve.whatToMine.data.DatedEveOrderList;
 import com.eve.whatToMine.db.EveDb;
 import com.eve.whatToMine.db.EveItemDb;
 import com.eve.whatToMine.db.EveRegionDb;
@@ -37,7 +37,7 @@ public class UserSessionTest {
 		JavaArchive ja = ShrinkWrap.create(JavaArchive.class, "userSessionTest.jar");
 		ja.addClasses(UserSession.class, EveDataLayer.class, EveDataLayerSingleton.class, 
 				EveRegion.class, EveSystem.class, EveStation.class, EveItem.class, EveOre.class, 
-				EveOrder.class, EveOrderListTimeStamp.class, CentralMarket.class,
+				EveOrder.class, DatedEveOrderList.class, CentralMarket.class,
 				EveRegionDb.class, EveSystemDb.class, EveStationDb.class, EveItemDb.class, EveDb.class);
 		ja.addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
 		return ja;

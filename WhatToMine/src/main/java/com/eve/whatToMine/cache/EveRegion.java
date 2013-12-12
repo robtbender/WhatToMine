@@ -12,7 +12,7 @@ import javax.naming.NamingException;
 
 import com.eve.centralMarketInterface.CentralMarket;
 import com.eve.whatToMine.data.EveOrder;
-import com.eve.whatToMine.data.EveOrderListTimeStamp;
+import com.eve.whatToMine.data.DatedEveOrderList;
 import com.eve.whatToMine.db.EveRegionDb;
 
 public class EveRegion {
@@ -32,7 +32,7 @@ public class EveRegion {
 	private String eveItemName = EveRegionNameEMPTYVALUE;
 	private long eveRegionId = EveRegionIdEMPTYVALUE;
 	private ArrayList<EveSystem> eveSystemList = new ArrayList<EveSystem>();
-	private HashMap<EveOre, EveOrderListTimeStamp> eveItemOrderHashMap = new HashMap<EveOre, EveOrderListTimeStamp>();
+	private HashMap<EveOre, DatedEveOrderList> eveItemOrderHashMap = new HashMap<EveOre, DatedEveOrderList>();
 	private ArrayList<EveOrder> eveRegionItemMaxOrderList = new ArrayList<EveOrder>();
 
 	public EveRegion(EveRegionDb eveRegionDb) {
@@ -89,38 +89,34 @@ public class EveRegion {
 			eveOrder.setEmptyOrder();
 			this.eveRegionItemMaxOrderList.add(eveOrder);
 		}
-		Collections.sort(this.eveRegionItemMaxOrderList, EveOrderListTimeStamp.ORE_COMPARATOR);
+		Collections.sort(this.eveRegionItemMaxOrderList, DatedEveOrderList.ORE_COMPARATOR);
 	}
 
 	private ArrayList<EveOrder> getEveItemOrders(EveOre eveOre) {
-		EveOrderListTimeStamp eveOrderListTimeStamp = this.getEveItemOrderHashMap().get(eveOre);
+		DatedEveOrderList datedEveOrderList = this.eveItemOrderHashMap.get(eveOre);
 
-		if((eveOrderListTimeStamp == null)){
+		if((datedEveOrderList == null)){
 			this.setEveItemOrders(eveOre);
-			eveOrderListTimeStamp = this.getEveItemOrderHashMap().get(eveOre);
+			datedEveOrderList = this.eveItemOrderHashMap.get(eveOre);
 		}else{
-			long timeDiff = ((new Date().getTime()) - eveOrderListTimeStamp.getCentralMarketTimeStamp().getTime()) / 3600000;
-			if (timeDiff > EveOrderListTimeStamp.MinRefreshHOURS) {
+			long timeDiff = ((new Date().getTime()) - datedEveOrderList.getCentralMarketTimeStamp().getTime()) / 3600000;
+			if (timeDiff > DatedEveOrderList.MinRefreshHOURS) {
 				this.setEveItemOrders(eveOre);
 			}
 		}
-		return eveOrderListTimeStamp.getOrderList();
+		return datedEveOrderList.getOrderList();
 	}
 
 	private void setEveItemOrders(EveOre eveOre) {
-		EveOrderListTimeStamp eveOrderListTimeStamp = new EveOrderListTimeStamp();
-		eveOrderListTimeStamp.setCentralMarketTimeStamp(new Date());
-		eveOrderListTimeStamp.setOrderList(new CentralMarket().getRegionBuyOrderList(this, eveOre));
-		eveOrderListTimeStamp.sortOrderList();
-		this.getEveItemOrderHashMap().put(eveOre, eveOrderListTimeStamp);
+		DatedEveOrderList datedEveOrderList = new DatedEveOrderList();
+		datedEveOrderList.setCentralMarketTimeStamp(new Date());
+		datedEveOrderList.setOrderList(new CentralMarket().getRegionBuyOrderList(this, eveOre));
+		datedEveOrderList.sortOrderList();
+		this.eveItemOrderHashMap.put(eveOre, datedEveOrderList);
 	}
 
-	public HashMap<EveOre, EveOrderListTimeStamp> getEveItemOrderHashMap() {
-	    return this.eveItemOrderHashMap;
-    }
-
 	public Set<EveOre> getEveRegionItemList() {
-	    return this.getEveItemOrderHashMap().keySet();
+	    return this.eveItemOrderHashMap.keySet();
     }
 
 	public EveOrder getEveRegionItemMaxOrderAvailable(EveSystem eveSystem, EveOre eveOre) {
@@ -135,7 +131,7 @@ public class EveRegion {
 			}
 		}
 		if( eveRegionItemOrderAvailableList.size() > 0 ){
-			Collections.sort(eveRegionItemOrderAvailableList, EveOrderListTimeStamp.ORE_COMPARATOR);
+			Collections.sort(eveRegionItemOrderAvailableList, DatedEveOrderList.ORE_COMPARATOR);
 			eveOrder = eveRegionItemOrderAvailableList.get(0);
 		}
 	    return eveOrder;
