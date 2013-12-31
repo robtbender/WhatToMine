@@ -6,7 +6,7 @@
 
 	<container qualifier="jbossas-7-managed" default="true">
 		<configuration>
-			<property name="jbossHome">C:\\Program Files\\JBoss\\jboss-as-7.1.0.Final Arq Server</property>
+			<property name="jbossHome">C:\\Program Files\\JBoss\\jboss-as-7.1.1.Final Arq Server</property>
 			<property name="username">admin</property>
 			<property name="password">password</property>
 			<property name="managementPort">19999</property>
