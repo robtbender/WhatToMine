@@ -1,9 +1,7 @@
 package com.eve.whatToMine.web;
 
 import javax.ejb.EJB;
-import javax.enterprise.context.ConversationScoped;
 import javax.enterprise.context.RequestScoped;
-import javax.enterprise.context.SessionScoped;
 import javax.inject.Named;
 
 import com.eve.whatToMine.cache.EveDataLayer;
