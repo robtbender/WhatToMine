@@ -2,6 +2,7 @@ package com.eve.whatToMine.arq;
 
 import static org.junit.Assert.*;
 
+import javax.ejb.EJB;
 import javax.inject.Inject;
 
 import org.jboss.arquillian.container.test.api.Deployment;

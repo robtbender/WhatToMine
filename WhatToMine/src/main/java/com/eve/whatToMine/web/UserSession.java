@@ -1,6 +1,8 @@
 package com.eve.whatToMine.web;
 
 import javax.ejb.EJB;
+import javax.enterprise.context.ConversationScoped;
+import javax.enterprise.context.RequestScoped;
 import javax.enterprise.context.SessionScoped;
 import javax.inject.Named;
 
@@ -12,7 +14,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 @Named
-@SessionScoped
+@RequestScoped
 public class UserSession implements Serializable {
 
 	@EJB
